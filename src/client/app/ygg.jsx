@@ -129,7 +129,7 @@ const Yggdrasil = React.createClass({
       fontSize: '3em',
       fontFamily: 'Roboto',
       fontStyle: 'bold',
-      color: '#5cb85c',
+      color: '#4CAF50',
     };
 
     const pStyle = {
