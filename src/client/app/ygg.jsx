@@ -7,15 +7,57 @@ import blobStream from 'blob-stream';
 import RaisedButton from 'material-ui/RaisedButton';
 import IconButton from 'material-ui/IconButton';
 import TextField from 'material-ui/TextField';
+import {
+  Step,
+  Stepper,
+  StepLabel,
+} from 'material-ui/Stepper';
+import FlatButton from 'material-ui/FlatButton';
 
 import SAMTHYKKT from './samthykkt.js';
+import Basics from './basics.jsx';
 
 const Yggdrasil = React.createClass({
 
   getInitialState: function() {
     return {
       companyName: '',
-      companyPurpose: ''
+      companyPurpose: '',
+      stepIndex: 0,
+    }
+  },
+
+  handleNext() {
+    const {stepIndex} = this.state;
+    this.setState({
+      stepIndex: stepIndex + 1,
+    });
+    console.log(this.state.companyName);
+    console.log(this.state.companyPurpose);
+  },
+
+  handlePrev() {
+    const {stepIndex} = this.state;
+    if (stepIndex > 0) {
+      this.setState({stepIndex: stepIndex - 1});
+    }
+  },
+
+  getStepContent(stepIndex) {
+  switch (stepIndex) {
+    case 0:
+      return (
+        <div>
+          <Basics
+            updateCompanyName={(value) => this.setState({companyName: value})}
+            updateCompanyPurpose={(value) => this.setState({companyPurpose: value.toLowerCase()})}
+            />
+        </div>
+      );
+    default:
+      return (
+        <div><Basics /></div>
+      );
     }
   },
 
@@ -91,37 +133,64 @@ const Yggdrasil = React.createClass({
     };
 
     const pStyle = {
-      textSize: '3em',
+      fontSize: '1em',
+      fontFamily: 'Roboto',
+      color: '#666',
+    };
+
+    const stepStyle = {
+      fontSize: '0.8em',
       fontFamily: 'Roboto',
       color: '#999',
     };
+
+    const stepIndex = this.state.stepIndex;
+    const contentStyle = {margin: '0 16px'};
 
     return (
       <div>
         <p style={headingStyle}>Welcome to Yggdrasil</p>
         <p style={pStyle}>
-          Yggdrasil is a tool that helps founder with the paperwork needed to incorporate a company in Iceland. Fill out the form, choose the paperwork you need, and click Generate PDF.
+          Yggdrasil is a tool that helps founders with the paperwork needed to incorporate a company in Iceland. Fill out the form, choose the paperwork you need, and click Generate PDF.
         </p>
         <p style={pStyle}>Please note that all fields should be filled out in Icelandic.</p>
-        <div>
-          <TextField
-            hintText="i.e. Death Star ehf."
-            floatingLabelText="Company Name"
-            onChange={this._handleChangeName}
-            />
+
+      <div style={{width: '100%', margin: 'auto'}}>
+        <Stepper activeStep={stepIndex}>
+          <Step>
+            <StepLabel style={stepStyle}>Company Basics</StepLabel>
+          </Step>
+          <Step>
+            <StepLabel style={stepStyle}>Finalize</StepLabel>
+          </Step>
+        </Stepper>
+        <div style={contentStyle}>
+          {stepIndex === 1 ? (
+            <div>
+              <RaisedButton
+                label="Generate PDF"
+                onMouseDown={() => this.makePDF()} />
+            </div>
+          ) : (
+            <div>
+              {this.getStepContent(stepIndex)}
+              <div style={{marginTop: 12}}>
+                <FlatButton
+                  label="Back"
+                  disabled={stepIndex === 0}
+                  onMouseDown={this.handlePrev}
+                  style={{marginRight: 12}}
+                />
+                <RaisedButton
+                  label={stepIndex === 0 ? 'Finish' : 'Next'}
+                  primary={true}
+                  onMouseDown={this.handleNext}
+                />
+              </div>
+            </div>
+          )}
         </div>
-        <div>
-          <TextField
-            hintText="i.e. ráða heiminum"
-            floatingLabelText="Company Purpose"
-            onChange={this._handleChangePurpose}
-            />
-        </div>
-        <div>
-          <RaisedButton
-            label="Generate PDF"
-            onMouseDown={() => this.makePDF()} />
-        </div>
+      </div>
         <p style={pStyle}>Yggdrasil is created and maintained by <a href="http://nordurskautid.is">Norðurskautið.</a></p>
       </div>
     );
